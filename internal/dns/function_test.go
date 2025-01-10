@@ -52,6 +52,16 @@ func TestIsValidHTTPURL(t *testing.T) {
 			url:      "",
 			expected: false,
 		},
+		{
+			name:     "Valid URL without Scheme",
+			url:      "example.com",
+			expected: true,
+		},
+		{
+			name:     "Valid URL without Scheme",
+			url:      "google.com",
+			expected: true,
+		},
 	}
 
 	for _, tt := range tests {

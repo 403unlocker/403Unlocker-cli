@@ -20,13 +20,30 @@ func URLValidator(URL string) bool {
 	}
 	// Check if the scheme is either "http" or "https"
 	if u.Scheme != "http" && u.Scheme != "https" {
-		return false
+		u = AppendScheme(URL)
+		if u == nil {
+			return false
+		}
 	}
 	// Check if the host is present
 	if u.Host == "" {
 		return false
 	}
 	return true
+}
+
+func AppendScheme(Url string) *url.URL {
+	u, err := url.Parse(Url)
+	if err != nil {
+		return nil
+	}
+
+	// Default to "http" when scheme is missing
+	u, err = url.Parse("http://" + Url)
+	if err != nil {
+		return nil
+	}
+	return u
 }
 
 func CheckWithURL(c *cli.Context) error {
