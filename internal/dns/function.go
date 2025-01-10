@@ -33,13 +33,8 @@ func URLValidator(URL string) bool {
 }
 
 func AppendScheme(Url string) *url.URL {
-	u, err := url.Parse(Url)
-	if err != nil {
-		return nil
-	}
-
 	// Default to "http" when scheme is missing
-	u, err = url.Parse("http://" + Url)
+	u, err := url.Parse("http://" + Url)
 	if err != nil {
 		return nil
 	}

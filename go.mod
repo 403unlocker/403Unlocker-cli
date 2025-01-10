@@ -3,6 +3,7 @@ module github.com/salehborhani/403Unlocker-cli
 go 1.23.1
 
 require (
+	github.com/cavaliergopher/grab/v3 v3.0.1
 	github.com/google/go-containerregistry v0.20.2
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/cli/v2 v2.27.5
@@ -10,7 +11,6 @@ require (
 )
 
 require (
-	github.com/cavaliergopher/grab/v3 v3.0.1 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.14.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.5 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -21,7 +21,6 @@ require (
 	github.com/klauspost/compress v1.16.5 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/logrusorgru/aurora/v3 v3.0.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc3 // indirect
