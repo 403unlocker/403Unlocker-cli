@@ -21,7 +21,6 @@ func ChangeDNS(dns string) *http.Client {
 		PreferGo: true,
 		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
 			dnsServer := fmt.Sprintf("%s:53", dns)
-			log.Printf("Using DNS server: %s\n", dnsServer)
 			return dialer.DialContext(ctx, "udp", dnsServer)
 		},
 	}
