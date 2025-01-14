@@ -1,38 +1,19 @@
-name: Deploy
-
+name: Release
 
 on:
   push:
-    branches:
-      - main 
+    tags:
+      - "v*.*.*"
 
 jobs:
-  init:
-    name: 🚩 Initialize
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel previous workflow
-        uses: styfle/cancel-workflow-action@0.12.1
-        with:
-          access_token: ${{ github.token }}
-
   release:
-    name: 🚀 Release
-    needs: init
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup NodeJS
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-
-      - name: Release
+      - name: Run GoReleaser
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp .github/.releaserc.yml .
-          npm i -g semantic-release @semantic-release/changelog @semantic-release/git
-          semantic-release
+          curl -sL https://git.io/goreleaser | bash
