@@ -12,6 +12,9 @@ var Cyan = "\033[36m"
 var Gray = "\033[37m"
 var White = "\033[97m"
 
+const DNS_CONFIG_FILE string = ".config/403unlocker/dns.conf"
+const DOCKER_CONFIG_FILE string = ".config/403unlocker/dockerRegistry.conf"
+
 // FormatDataSize converts the size in bytes to a human-readable string in KB, MB, or GB.
 func FormatDataSize(bytes int64) string {
 	const (

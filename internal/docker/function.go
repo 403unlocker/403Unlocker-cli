@@ -112,7 +112,7 @@ func CheckWithDockerImage(c *cli.Context) error {
 		return fmt.Errorf("image name cannot be empty")
 	}
 
-	registryList, err := check.ReadDNSFromFile("config/dockerRegistry.conf")
+	registryList, err := check.ReadDNSFromFile(common.DOCKER_CONFIG_FILE)
 	if err != nil {
 		log.Printf("Error reading registry list: %v", err)
 		return err

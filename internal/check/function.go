@@ -46,7 +46,7 @@ func CheckWithDNS(c *cli.Context) error {
 	fmt.Printf("| %-18s | %-10s |\n", "DNS Server", "Status")
 	fmt.Println("+--------------------+------------+")
 
-	dnsList, err := ReadDNSFromFile("config/dns.conf")
+	dnsList, err := ReadDNSFromFile(common.DNS_CONFIG_FILE)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -86,6 +86,12 @@ func CheckWithDNS(c *cli.Context) error {
 }
 
 func ReadDNSFromFile(filename string) ([]string, error) {
+	homeDir := os.Getenv("HOME")
+	if homeDir == "" {
+		fmt.Println("HOME environment variable not set")
+		os.Exit(1)
+	}
+	filename = homeDir + "/" + filename
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
