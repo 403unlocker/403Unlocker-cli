@@ -161,7 +161,9 @@ func CheckWithURL(c *cli.Context) error {
 	fmt.Printf("| %-18s | %-14s |\n", "DNS Server", "Download Speed")
 	fmt.Println("+--------------------+----------------+")
 
-	tempDir := time.Now().UnixMilli()
+	rand := time.Now().UnixMilli()
+	tempDir := common.AddPathToDir(common.GetTempDir(), strconv.Itoa(int(rand)))
+
 	var wg sync.WaitGroup
 	for _, dns := range dnsList {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
@@ -170,8 +172,10 @@ func CheckWithURL(c *cli.Context) error {
 		clientWithCustomDNS := common.ChangeDNS(dns)
 		client := grab.NewClient()
 		client.HTTPClient = clientWithCustomDNS
+		var req *grab.Request
+		var err error
+		req, err = grab.NewRequest(fmt.Sprintf("%v", tempDir), fileToDownload)
 
-		req, err := grab.NewRequest(fmt.Sprintf("/tmp/%v", tempDir), fileToDownload)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error creating request for DNS %s: %v\n", dns, err)
 		}
@@ -213,6 +217,6 @@ func CheckWithURL(c *cli.Context) error {
 		fmt.Println("No DNS server was able to download any data.")
 	}
 
-	os.RemoveAll(fmt.Sprintf("/tmp/%v", tempDir))
+	os.RemoveAll(fmt.Sprintf("%v", tempDir))
 	return nil
 }

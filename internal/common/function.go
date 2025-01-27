@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -52,14 +53,12 @@ func FormatDataSize(bytes int64) string {
 }
 
 func DownloadConfigFile(url, path string) error {
-
-	homeDir := os.Getenv("HOME")
+	homeDir := GetHomeDir()
 	if homeDir == "" {
 		fmt.Println("HOME environment variable not set")
 		os.Exit(1)
 	}
-	filePath := homeDir + "/" + path
-
+	filePath := AddPathToDir(homeDir, path)
 	dir := filepath.Dir(filePath)
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		fmt.Printf("Error creating directory: %v\n", err)
@@ -100,14 +99,12 @@ func DownloadConfigFile(url, path string) error {
 }
 
 func WriteDNSToFile(filename string, dnsList []string) error {
-	homeDir := os.Getenv("HOME")
+	homeDir := GetHomeDir()
 	if homeDir == "" {
 		fmt.Println("HOME environment variable not set")
 		os.Exit(1)
 	}
-
-	filename = homeDir + "/" + filename
-
+	filename = AddPathToDir(homeDir, filename)
 	_, err := os.Stat(filename)
 	if os.IsNotExist(err) {
 		file, err := os.Create(filename)
@@ -130,12 +127,12 @@ func WriteDNSToFile(filename string, dnsList []string) error {
 }
 
 func ReadDNSFromFile(filename string) ([]string, error) {
-	homeDir := os.Getenv("HOME")
+	homeDir := GetHomeDir()
 	if homeDir == "" {
 		fmt.Println("HOME environment variable not set")
 		os.Exit(1)
 	}
-	filename = homeDir + "/" + filename
+	filename = AddPathToDir(homeDir, filename)
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -163,4 +160,25 @@ func ChangeDNS(dns string) *http.Client {
 		Transport: transport,
 	}
 	return client
+}
+func GetHomeDir() string {
+	if runtime.GOOS == "windows" {
+		return os.Getenv("USERPROFILE")
+	} else {
+		return os.Getenv("HOME")
+	}
+}
+func GetTempDir() string {
+	if runtime.GOOS == "windows" {
+		return os.Getenv("TEMP")
+	} else {
+		return "/tmp"
+	}
+}
+func AddPathToDir(baseDir, extraDir string) string {
+	if runtime.GOOS == "windows" {
+		return baseDir + "\\" + extraDir
+	} else {
+		return baseDir + "/" + extraDir
+	}
 }

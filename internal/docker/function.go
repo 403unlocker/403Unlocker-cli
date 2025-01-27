@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -102,8 +103,8 @@ func CheckWithDockerImage(c *cli.Context) error {
 	registrySizeMap := make(map[string]int64)
 	timeout := c.Int("timeout")
 	imageName := c.Args().First()
-	tempDir := time.Now().UnixMilli()
-
+	rand := time.Now().UnixMilli()
+	tempDir := common.AddPathToDir(common.GetTempDir(), strconv.Itoa(int(rand)))
 	fmt.Printf("\nTimeout: %d seconds\n", timeout)
 	fmt.Printf("Docker Image: %s\n\n", imageName)
 
@@ -147,7 +148,7 @@ func CheckWithDockerImage(c *cli.Context) error {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 		defer cancel()
 
-		size, err := DownloadDockerImage(ctx, imageName, registry, fmt.Sprintf("/tmp/%v", tempDir))
+		size, err := DownloadDockerImage(ctx, imageName, registry, fmt.Sprintf("%v", tempDir))
 		if err != nil {
 			fmt.Printf("| %-*s | %s%-16s%s |\n",
 				maxLength, registry,
@@ -181,6 +182,6 @@ func CheckWithDockerImage(c *cli.Context) error {
 		fmt.Println("No registry was able to download any data.")
 	}
 
-	os.RemoveAll(fmt.Sprintf("/tmp/%v", tempDir))
+	os.RemoveAll(fmt.Sprintf("%v", tempDir))
 	return nil
 }
