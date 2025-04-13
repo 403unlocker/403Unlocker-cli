@@ -5,7 +5,7 @@ BIN_DIR = ~/.local/bin
 CONFIG_DIR= ~/.config/403unlocker
 DNS_CONFIG_FILE_URL=https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dns.conf
 DOCKER_CONFIG_FILE_URL=https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dockerRegistry.conf
-
+GOPROXY ?= https://goproxy.cn,direct
 .DEFAULT_GOAL := help
 
 .PHONY: help lint build test clean install uninstall
@@ -24,7 +24,8 @@ lint:
 
 build:
 	@go build -o $(OUTPUT) $(MAIN)
-
+	@echo "Building with GOPROXY=$(GOPROXY)..."
+	GOPROXY=$(GOPROXY) go env -w GOPROXY=$(GOPROXY)
 
 test: 
 	@go test ./...
