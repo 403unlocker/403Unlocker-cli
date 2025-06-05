@@ -4,7 +4,7 @@ MAIN = cmd/main.go
 BIN_DIR = ~/.local/bin
 CONFIG_DIR= ~/.config/403unlocker
 DNS_CONFIG_FILE_URL=https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dns.yml
-DOCKER_CONFIG_FILE_URL=https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dockerRegistry.yaml
+DOCKER_CONFIG_FILE_URL=https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dockerRegistry.yml
 
 .DEFAULT_GOAL := help
 
@@ -39,7 +39,7 @@ install: build
 	@install -m 755 $(OUTPUT) $(BIN_DIR)
 	@echo "Downloading config files dns.yml to $(CONFIG_DIR)..."
 	@wget $(DNS_CONFIG_FILE_URL) -q -P $(CONFIG_DIR)
-	@echo "Downloading dockerRegistry.yaml $(CONFIG_DIR)..."
+	@echo "Downloading dockerRegistry.yml $(CONFIG_DIR)..."
 	@wget $(DOCKER_CONFIG_FILE_URL) -q -P $(CONFIG_DIR)
 
 

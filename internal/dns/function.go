@@ -140,7 +140,6 @@ func CheckWithURL(commandLintFirstArg string, check bool, timeout int) error {
 	dnsList, err := common.ReadDNSFromFile(dnsFile)
 	if err != nil {
 		// Fallback to download and read from the original DNS file
-		println("kir")
 		err = common.DownloadConfigFile(common.DNS_CONFIG_URL, common.DNS_CONFIG_FILE)
 		if err != nil {
 			return fmt.Errorf("error downloading DNS config file: %w", err)

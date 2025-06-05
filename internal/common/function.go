@@ -29,9 +29,9 @@ const (
 	// DNS config
 	DNS_CONFIG_FILE         = ".config/403unlocker/dns.yml"
 	CHECKED_DNS_CONFIG_FILE = ".config/403unlocker/checked_dns.yml"
-	DOCKER_CONFIG_FILE      = ".config/403unlocker/dockerRegistry.yaml"
+	DOCKER_CONFIG_FILE      = ".config/403unlocker/dockerRegistry.yml"
 	DNS_CONFIG_URL          = "https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dns.yml"
-	DOCKER_CONFIG_URL       = "https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dockerRegistry.yaml"
+	DOCKER_CONFIG_URL       = "https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dockerRegistry.yml"
 
 	// OS names
 	WINDOWS_OS_NAME = "windows"
