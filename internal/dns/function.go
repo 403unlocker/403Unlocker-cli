@@ -34,8 +34,6 @@ func URLValidator(URL string) bool {
 }
 
 func CheckAndCacheDNS(url string) error {
-	cacheFile := common.CHECKED_DNS_CONFIG_FILE
-
 	dnsList, err := common.ReadDNSFromFile(common.DNS_CONFIG_FILE)
 	if err != nil {
 		err = common.DownloadConfigFile(common.DNS_CONFIG_URL, common.DNS_CONFIG_FILE)
@@ -109,12 +107,13 @@ func CheckAndCacheDNS(url string) error {
 	fmt.Println("Valid DNS List: ", validDNSList)
 
 	if len(validDNSList) > 0 {
-		err = common.WriteDNSToFile(cacheFile, validDNSList)
+		err = common.WriteDNSToFile(common.CHECKED_DNS_CONFIG_FILE, validDNSList)
 		if err != nil {
 			fmt.Println("Error writing to cached DNS file:", err)
 			return err
 		}
-		fmt.Printf("Cached %d valid DNS servers to %s\n", len(validDNSList), cacheFile)
+		homeDir, _ := os.UserHomeDir()
+		fmt.Printf("Cached %d valid DNS servers to %s\n", len(validDNSList), homeDir+"/"+common.CHECKED_DNS_CONFIG_FILE)
 	} else {
 		fmt.Println("No valid DNS servers found to cache.")
 	}
@@ -123,6 +122,7 @@ func CheckAndCacheDNS(url string) error {
 }
 
 func CheckWithURL(commandLintFirstArg string, check bool, timeout int) error {
+	var dnsList []string
 	fileToDownload := commandLintFirstArg
 
 	var dnsFile string
@@ -140,11 +140,12 @@ func CheckWithURL(commandLintFirstArg string, check bool, timeout int) error {
 	dnsList, err := common.ReadDNSFromFile(dnsFile)
 	if err != nil {
 		// Fallback to download and read from the original DNS file
+		println("kir")
 		err = common.DownloadConfigFile(common.DNS_CONFIG_URL, common.DNS_CONFIG_FILE)
 		if err != nil {
 			return fmt.Errorf("error downloading DNS config file: %w", err)
 		}
-		dnsList, err = common.ReadDNSFromFile(common.DNS_CONFIG_FILE)
+		dnsList, err = common.ReadDNSFromFile(dnsFile)
 		if err != nil {
 			return fmt.Errorf("error reading DNS list from file: %w", err)
 		}

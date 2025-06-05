@@ -9,9 +9,9 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 
 	"github.com/spf13/viper"
+	yaml "gopkg.in/yaml.v2"
 )
 
 const (
@@ -27,11 +27,11 @@ const (
 	White   = "\033[97m"
 
 	// DNS config
-	DNS_CONFIG_FILE         = ".config/403unlocker/dns.conf"
-	CHECKED_DNS_CONFIG_FILE = ".config/403unlocker/checked_dns.conf"
-	DOCKER_CONFIG_FILE      = ".config/403unlocker/dockerRegistry.conf"
-	DNS_CONFIG_URL          = "https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dns.conf"
-	DOCKER_CONFIG_URL       = "https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dockerRegistry.conf"
+	DNS_CONFIG_FILE         = ".config/403unlocker/dns.yml"
+	CHECKED_DNS_CONFIG_FILE = ".config/403unlocker/checked_dns.yml"
+	DOCKER_CONFIG_FILE      = ".config/403unlocker/dockerRegistry.yaml"
+	DNS_CONFIG_URL          = "https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dns.yml"
+	DOCKER_CONFIG_URL       = "https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dockerRegistry.yaml"
 
 	// OS names
 	WINDOWS_OS_NAME = "windows"
@@ -118,10 +118,11 @@ func WriteDNSToFile(filename string, dnsList []string) error {
 		}
 		file.Close()
 	}
-
-	content := strings.Join(dnsList, " ")
-
-	err = os.WriteFile(filename, []byte(content), 0644)
+	data := map[string][]string{
+		"dnsServers": dnsList,
+	}
+	yamlData, err := yaml.Marshal(data)
+	err = os.WriteFile(filename, yamlData, 0644)
 	if err != nil {
 		fmt.Printf("Error writing to file %s: %v\n", filename, err)
 		return err
