@@ -110,14 +110,13 @@ func CheckWithDockerImage(imageName string, timeout int) error {
 		return fmt.Errorf("image name cannot be empty")
 	}
 
-	registryList, err := common.ReadDNSFromFile(common.DOCKER_CONFIG_FILE)
+	registryList, err := common.ReadDockerromFile(common.DOCKER_CONFIG_FILE)
 	if err != nil {
 		err = common.DownloadConfigFile(common.DOCKER_CONFIG_URL, common.DOCKER_CONFIG_FILE)
 		if err != nil {
 			return err
 		}
-
-		registryList, err = common.ReadDNSFromFile(common.DOCKER_CONFIG_FILE)
+		registryList, err = common.ReadDockerromFile(common.DOCKER_CONFIG_FILE)
 		if err != nil {
 			log.Printf("Error reading registry list: %v", err)
 			return err

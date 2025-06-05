@@ -2,7 +2,6 @@ package dns
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -15,7 +14,6 @@ import (
 	"403unlocker-cli/internal/common"
 
 	"github.com/cavaliergopher/grab/v3"
-	"github.com/spf13/viper"
 )
 
 func URLValidator(URL string) bool {
@@ -36,27 +34,21 @@ func URLValidator(URL string) bool {
 }
 
 func CheckAndCacheDNS(url string) error {
-	// Initialize Viper for DNS configuration
-	dnsViper := viper.New()
-	dnsViper.SetConfigFile(common.DNS_CONFIG_FILE)
+	cacheFile := common.CHECKED_DNS_CONFIG_FILE
 
-	// Try to read the DNS config file
-	if err := dnsViper.ReadInConfig(); err != nil {
-		// If file doesn't exist, download it
-		if err := common.DownloadConfigFile(common.DNS_CONFIG_URL, common.DNS_CONFIG_FILE); err != nil {
-			return fmt.Errorf("error downloading DNS config: %w", err)
+	dnsList, err := common.ReadDNSFromFile(common.DNS_CONFIG_FILE)
+	if err != nil {
+		err = common.DownloadConfigFile(common.DNS_CONFIG_URL, common.DNS_CONFIG_FILE)
+		if err != nil {
+			fmt.Println("Error downloading DNS config file:", err)
+			return err
 		}
 
-		// Try reading again after download
-		if err := dnsViper.ReadInConfig(); err != nil {
-			return fmt.Errorf("error reading DNS config: %w", err)
+		dnsList, err = common.ReadDNSFromFile(common.DNS_CONFIG_FILE)
+		if err != nil {
+			fmt.Println("Error reading DNS list from file:", err)
+			return err
 		}
-	}
-
-	// Get DNS list from config
-	dnsList := dnsViper.GetStringSlice("dnsServers")
-	if len(dnsList) == 0 {
-		return errors.New("no DNS servers found in config")
 	}
 
 	fmt.Println("\n+--------------------+------------+")
@@ -72,7 +64,10 @@ func CheckAndCacheDNS(url string) error {
 		go func(dns string) {
 			defer wg.Done()
 
+			// Change DNS for the HTTP client
 			client := common.ChangeDNS(dns)
+
+			// Perform the GET request
 			resp, err := client.Get(url)
 			if err != nil {
 				fmt.Printf("| %-18s | %s%-10s%s |\n", dns, common.Red, "Error", common.Reset)
@@ -80,19 +75,22 @@ func CheckAndCacheDNS(url string) error {
 			}
 			defer resp.Body.Close()
 
-			statusParts := strings.Split(resp.Status, " ")
-			if len(statusParts) < 2 {
+			// Parse the status code
+			codeParts := strings.Split(resp.Status, " ")
+			if len(codeParts) < 2 {
 				fmt.Printf("| %-18s | %s%-10s%s |\n", dns, common.Red, "Invalid", common.Reset)
 				return
 			}
 
-			statusCode, err := strconv.Atoi(statusParts[0])
+			statusCode, err := strconv.Atoi(codeParts[0])
 			if err != nil {
 				fmt.Printf("| %-18s | %s%-10s%s |\n", dns, common.Red, "Error", common.Reset)
 				return
 			}
 
-			statusText := statusParts[1]
+			// Output the status with appropriate color
+			statusText := codeParts[1]
+
 			if statusCode == http.StatusOK {
 				mu.Lock()
 				validDNSList = append(validDNSList, dns)
@@ -105,21 +103,18 @@ func CheckAndCacheDNS(url string) error {
 	}
 
 	wg.Wait()
+
 	fmt.Println("+--------------------+------------+")
 
-	// Initialize Viper for cache
-	cacheViper := viper.New()
-	cacheViper.SetConfigFile(common.CHECKED_DNS_CONFIG_FILE)
+	fmt.Println("Valid DNS List: ", validDNSList)
 
-	// Save valid DNS list if any found
 	if len(validDNSList) > 0 {
-		cacheViper.Set("validDNSServers", validDNSList)
-		if err := cacheViper.WriteConfig(); err != nil {
-			if err := cacheViper.SafeWriteConfig(); err != nil {
-				return fmt.Errorf("error writing cached DNS config: %w", err)
-			}
+		err = common.WriteDNSToFile(cacheFile, validDNSList)
+		if err != nil {
+			fmt.Println("Error writing to cached DNS file:", err)
+			return err
 		}
-		fmt.Printf("Cached %d valid DNS servers to %s\n", len(validDNSList), common.CHECKED_DNS_CONFIG_FILE)
+		fmt.Printf("Cached %d valid DNS servers to %s\n", len(validDNSList), cacheFile)
 	} else {
 		fmt.Println("No valid DNS servers found to cache.")
 	}

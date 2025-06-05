@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/spf13/viper"
 )
 
 const (
@@ -54,7 +56,6 @@ func FormatDataSize(bytes int64) string {
 		return fmt.Sprintf("%d Bytes", bytes)
 	}
 }
-
 func DownloadConfigFile(url, path string) error {
 	homeDir := GetHomeDir()
 	if homeDir == "" {
@@ -136,12 +137,37 @@ func ReadDNSFromFile(filename string) ([]string, error) {
 		os.Exit(1)
 	}
 	filename = AddPathToDir(homeDir, filename)
-	data, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, err
+	viper.SetConfigFile(filename)
+	viper.SetConfigType("yaml")
+	if err := viper.ReadInConfig(); err != nil {
+		return nil, fmt.Errorf("error reading config file: %w", err)
 	}
-	dnsServers := strings.Fields(string(data))
+	// Get DNS list
+	dnsServers := viper.GetStringSlice("dnsServers")
+	if len(dnsServers) == 0 {
+		return nil, fmt.Errorf("no DNS servers found in config")
+	}
 	return dnsServers, nil
+}
+
+func ReadDockerromFile(filename string) ([]string, error) {
+	homeDir := GetHomeDir()
+	if homeDir == "" {
+		fmt.Println("HOME environment variable not set")
+		os.Exit(1)
+	}
+	filename = AddPathToDir(homeDir, filename)
+	viper.SetConfigFile(filename)
+	viper.SetConfigType("yaml")
+	if err := viper.ReadInConfig(); err != nil {
+		return nil, fmt.Errorf("error reading config file: %w", err)
+	}
+	// Get DNS list
+	registryList := viper.GetStringSlice("registryList")
+	if len(registryList) == 0 {
+		return nil, fmt.Errorf("no DNS servers found in config")
+	}
+	return registryList, nil
 }
 
 func ChangeDNS(dns string) *http.Client {
