@@ -10,7 +10,6 @@ DOCKER_CONFIG_FILE_URL=https://raw.githubusercontent.com/403unlocker/403Unlocker
 
 .PHONY: help lint build test clean install uninstall
 
-GITHUB_TAG="${GITHUB_TAG:-local}"
 
 help:
 	@echo "Usage: make [target]"
@@ -24,7 +23,7 @@ lint:
 
 
 build:
-	@go build -ldflags "-X 403unlocker-cli/cmd/cli.Version=$(GITHUB_TAG)" -o  $(OUTPUT) $(MAIN)
+	@go build -ldflags "-X 403unlocker-cli/cmd/cli.Version=dev" -o  $(OUTPUT) $(MAIN)
 
 
 test:
