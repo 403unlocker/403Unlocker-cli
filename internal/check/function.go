@@ -1,6 +1,7 @@
 package check
 
 import (
+	"403unlocker-cli/internal/common"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -8,13 +9,10 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-
-	"github.com/salehborhani/403Unlocker-cli/internal/common"
-	"github.com/urfave/cli/v2"
 )
 
-func CheckWithDNS(c *cli.Context) error {
-	url := c.Args().First()
+func CheckWithDNS(commandLintFirstArg string) error {
+	url := commandLintFirstArg
 	url = ensureHTTPS(url)
 
 	fmt.Println("URL: ", url)

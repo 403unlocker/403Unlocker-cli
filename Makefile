@@ -1,6 +1,6 @@
 
 OUTPUT = 403unlocker
-MAIN = cmd/403unlockercli/main.go
+MAIN = cmd/main.go
 BIN_DIR = ~/.local/bin
 CONFIG_DIR= ~/.config/403unlocker
 DNS_CONFIG_FILE_URL=https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dns.conf
@@ -10,6 +10,7 @@ DOCKER_CONFIG_FILE_URL=https://raw.githubusercontent.com/403unlocker/403Unlocker
 
 .PHONY: help lint build test clean install uninstall
 
+GITHUB_TAG="${GITHUB_TAG:-local}"
 
 help:
 	@echo "Usage: make [target]"
@@ -23,18 +24,18 @@ lint:
 
 
 build:
-	@go build -o $(OUTPUT) $(MAIN)
+	@go build -ldflags "-X 403unlocker-cli/cmd/cli.Version=$(GITHUB_TAG)" -o  $(OUTPUT) $(MAIN)
 
 
-test: 
+test:
 	@go test ./...
 
 
-clean: 
+clean:
 	@rm -f $(OUTPUT)
 
 
-install: build 
+install: build
 	@echo "Installing $(OUTPUT) to $(BIN_DIR)..."
 	@install -m 755 $(OUTPUT) $(BIN_DIR)
 	@echo "Downloading config files dns.conf to $(CONFIG_DIR)..."

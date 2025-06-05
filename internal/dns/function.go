@@ -11,9 +11,9 @@ import (
 	"sync"
 	"time"
 
+	"403unlocker-cli/internal/common"
+
 	"github.com/cavaliergopher/grab/v3"
-	"github.com/salehborhani/403Unlocker-cli/internal/common"
-	"github.com/urfave/cli/v2"
 )
 
 func URLValidator(URL string) bool {
@@ -122,11 +122,11 @@ func CheckAndCacheDNS(url string) error {
 	return nil
 }
 
-func CheckWithURL(c *cli.Context) error {
-	fileToDownload := c.Args().First()
+func CheckWithURL(commandLintFirstArg string, check bool, timeout int) error {
+	fileToDownload := commandLintFirstArg
 
 	var dnsFile string
-	if c.Bool("check") {
+	if check {
 		err := CheckAndCacheDNS(fileToDownload)
 		if err != nil {
 			return err
@@ -152,7 +152,6 @@ func CheckWithURL(c *cli.Context) error {
 
 	dnsSizeMap := make(map[string]int64)
 
-	timeout := c.Int("timeout")
 	fmt.Printf("\nTimeout: %d seconds\n", timeout)
 	fmt.Printf("URL: %s\n\n", fileToDownload)
 
