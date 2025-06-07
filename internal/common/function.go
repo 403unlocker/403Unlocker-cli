@@ -122,6 +122,10 @@ func WriteDNSToFile(filename string, dnsList []string) error {
 		"dnsServers": dnsList,
 	}
 	yamlData, err := yaml.Marshal(data)
+	if err != nil {
+		fmt.Printf("%v", err)
+		return err
+	}
 	err = os.WriteFile(filename, yamlData, 0644)
 	if err != nil {
 		fmt.Printf("Error writing to file %s: %v\n", filename, err)
