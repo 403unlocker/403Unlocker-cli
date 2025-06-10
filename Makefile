@@ -1,10 +1,10 @@
 
 OUTPUT = 403unlocker
-MAIN = cmd/403unlockercli/main.go
+MAIN = cmd/main.go
 BIN_DIR = ~/.local/bin
 CONFIG_DIR= ~/.config/403unlocker
-DNS_CONFIG_FILE_URL=https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dns.conf
-DOCKER_CONFIG_FILE_URL=https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dockerRegistry.conf
+DNS_CONFIG_FILE_URL=https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dns.yml
+DOCKER_CONFIG_FILE_URL=https://raw.githubusercontent.com/403unlocker/403Unlocker-cli/refs/heads/main/config/dockerRegistry.yml
 
 .DEFAULT_GOAL := help
 
@@ -23,23 +23,23 @@ lint:
 
 
 build:
-	@go build -o $(OUTPUT) $(MAIN)
+	@go build -ldflags "-X 403unlocker-cli/cmd/cli.Version=dev" -o  $(OUTPUT) $(MAIN)
 
 
-test: 
+test:
 	@go test ./...
 
 
-clean: 
+clean:
 	@rm -f $(OUTPUT)
 
 
-install: build 
+install: build
 	@echo "Installing $(OUTPUT) to $(BIN_DIR)..."
 	@install -m 755 $(OUTPUT) $(BIN_DIR)
-	@echo "Downloading config files dns.conf to $(CONFIG_DIR)..."
+	@echo "Downloading config files dns.yml to $(CONFIG_DIR)..."
 	@wget $(DNS_CONFIG_FILE_URL) -q -P $(CONFIG_DIR)
-	@echo "Downloading dockerRegistry.conf $(CONFIG_DIR)..."
+	@echo "Downloading dockerRegistry.yml $(CONFIG_DIR)..."
 	@wget $(DOCKER_CONFIG_FILE_URL) -q -P $(CONFIG_DIR)
 
 

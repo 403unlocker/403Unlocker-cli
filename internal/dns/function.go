@@ -11,9 +11,9 @@ import (
 	"sync"
 	"time"
 
+	"403unlocker-cli/internal/common"
+
 	"github.com/cavaliergopher/grab/v3"
-	"github.com/salehborhani/403Unlocker-cli/internal/common"
-	"github.com/urfave/cli/v2"
 )
 
 func URLValidator(URL string) bool {
@@ -34,8 +34,6 @@ func URLValidator(URL string) bool {
 }
 
 func CheckAndCacheDNS(url string) error {
-	cacheFile := common.CHECKED_DNS_CONFIG_FILE
-
 	dnsList, err := common.ReadDNSFromFile(common.DNS_CONFIG_FILE)
 	if err != nil {
 		err = common.DownloadConfigFile(common.DNS_CONFIG_URL, common.DNS_CONFIG_FILE)
@@ -109,12 +107,13 @@ func CheckAndCacheDNS(url string) error {
 	fmt.Println("Valid DNS List: ", validDNSList)
 
 	if len(validDNSList) > 0 {
-		err = common.WriteDNSToFile(cacheFile, validDNSList)
+		err = common.WriteDNSToFile(common.CHECKED_DNS_CONFIG_FILE, validDNSList)
 		if err != nil {
 			fmt.Println("Error writing to cached DNS file:", err)
 			return err
 		}
-		fmt.Printf("Cached %d valid DNS servers to %s\n", len(validDNSList), cacheFile)
+		homeDir, _ := os.UserHomeDir()
+		fmt.Printf("Cached %d valid DNS servers to %s\n", len(validDNSList), homeDir+"/"+common.CHECKED_DNS_CONFIG_FILE)
 	} else {
 		fmt.Println("No valid DNS servers found to cache.")
 	}
@@ -122,11 +121,12 @@ func CheckAndCacheDNS(url string) error {
 	return nil
 }
 
-func CheckWithURL(c *cli.Context) error {
-	fileToDownload := c.Args().First()
+func CheckWithURL(commandLintFirstArg string, check bool, timeout int) error {
+	var dnsList []string
+	fileToDownload := commandLintFirstArg
 
 	var dnsFile string
-	if c.Bool("check") {
+	if check {
 		err := CheckAndCacheDNS(fileToDownload)
 		if err != nil {
 			return err
@@ -144,7 +144,7 @@ func CheckWithURL(c *cli.Context) error {
 		if err != nil {
 			return fmt.Errorf("error downloading DNS config file: %w", err)
 		}
-		dnsList, err = common.ReadDNSFromFile(common.DNS_CONFIG_FILE)
+		dnsList, err = common.ReadDNSFromFile(dnsFile)
 		if err != nil {
 			return fmt.Errorf("error reading DNS list from file: %w", err)
 		}
@@ -152,7 +152,6 @@ func CheckWithURL(c *cli.Context) error {
 
 	dnsSizeMap := make(map[string]int64)
 
-	timeout := c.Int("timeout")
 	fmt.Printf("\nTimeout: %d seconds\n", timeout)
 	fmt.Printf("URL: %s\n\n", fileToDownload)
 

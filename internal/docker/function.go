@@ -14,12 +14,12 @@ import (
 	"sync/atomic"
 	"time"
 
+	"403unlocker-cli/internal/common"
+
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
-	"github.com/salehborhani/403Unlocker-cli/internal/common"
-	"github.com/urfave/cli/v2"
 )
 
 // DockerImageValidator validates a Docker image name using a regular expression.
@@ -99,10 +99,8 @@ func DownloadDockerImage(ctx context.Context, imageName, registry, outputPath st
 }
 
 // CheckWithDockerImage downloads the image from multiple registries and reports the downloaded data size.
-func CheckWithDockerImage(c *cli.Context) error {
+func CheckWithDockerImage(imageName string, timeout int) error {
 	registrySizeMap := make(map[string]int64)
-	timeout := c.Int("timeout")
-	imageName := c.Args().First()
 	rand := time.Now().UnixMilli()
 	tempDir := common.AddPathToDir(common.GetTempDir(), strconv.Itoa(int(rand)))
 	fmt.Printf("\nTimeout: %d seconds\n", timeout)
@@ -112,14 +110,13 @@ func CheckWithDockerImage(c *cli.Context) error {
 		return fmt.Errorf("image name cannot be empty")
 	}
 
-	registryList, err := common.ReadDNSFromFile(common.DOCKER_CONFIG_FILE)
+	registryList, err := common.ReadDockerromFile(common.DOCKER_CONFIG_FILE)
 	if err != nil {
 		err = common.DownloadConfigFile(common.DOCKER_CONFIG_URL, common.DOCKER_CONFIG_FILE)
 		if err != nil {
 			return err
 		}
-
-		registryList, err = common.ReadDNSFromFile(common.DOCKER_CONFIG_FILE)
+		registryList, err = common.ReadDockerromFile(common.DOCKER_CONFIG_FILE)
 		if err != nil {
 			log.Printf("Error reading registry list: %v", err)
 			return err

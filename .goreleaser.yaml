@@ -6,7 +6,7 @@ before:
 
 builds:
   - id: "403unlockercli-linux"  # Unique ID for this build
-    main: ./cmd/403unlockercli
+    main: ./cmd
     binary: "403unlocker"
     env:
       - CGO_ENABLED=0
@@ -15,9 +15,11 @@ builds:
     goarch:
       - amd64
       - arm64
+    ldflags:
+      - -X 403unlocker-cli/cmd/cli.Version={{ .Version }}
 
   - id: "403unlockercli-windows"  # Unique ID for this build
-    main: ./cmd/403unlockercli
+    main: ./cmd
     binary: "403unlocker"
     env:
       - CGO_ENABLED=0
@@ -25,9 +27,11 @@ builds:
       - windows
     goarch:
       - amd64
+    ldflags:
+      - -X 403unlocker-cli/cmd/cli.Version={{ .Version }}
 
   - id: "403unlockercli-darwin"  # Unique ID for this build
-    main: ./cmd/403unlockercli
+    main: ./cmd
     binary: "403unlocker"
     env:
       - CGO_ENABLED=0
@@ -36,6 +40,8 @@ builds:
     goarch:
       - amd64
       - arm64
+    ldflags:
+      - -X 403unlocker-cli/cmd/cli.Version={{ .Version }}
 
 archives:
   - format: tar.gz
