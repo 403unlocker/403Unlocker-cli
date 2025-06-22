@@ -7,3 +7,4 @@ registryList:
   - "docker.haiocloud.com"
   - "registry.registryhub.ir"
   - "docker-mirror.kubarcloud.com"
+  - "hub.hamdocker.ir"
