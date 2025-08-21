@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -16,21 +15,23 @@ import (
 
 	"403unlocker-cli/internal/common"
 
+	"github.com/distribution/reference"
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
 )
 
-// DockerImageValidator validates a Docker image name using a regular expression.
+// DockerImageValidator validates a Docker image name using the same method as kubectl.
+// This uses reference.ReferenceRegexp from github.com/distribution/reference package
+// which provides comprehensive validation for Docker image references.
 func DockerImageValidator(imageName string) bool {
-	pattern := `^(?:[a-zA-Z0-9\-._]+(?::[0-9]+)?/)?` +
-		`(?:[a-z0-9\-._]+/)?` +
-		`[a-z0-9\-._]+` +
-		`(?::[a-zA-Z0-9\-._]+)?` +
-		`(?:@[a-zA-Z0-9\-._:]+)?$`
-	regex := regexp.MustCompile(pattern)
-	return regex.MatchString(imageName) && !strings.Contains(imageName, "@@")
+	if imageName == "" {
+		return false
+	}
+
+	// Use the same validation method as kubectl
+	return reference.ReferenceRegexp.MatchString(imageName)
 }
 
 // customTransport tracks the number of bytes transferred during HTTP requests.
